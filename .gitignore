@@ -12,3 +12,6 @@ terraform/*.tfvars
 
 # Logs de execução
 logs/
+
+# CA private key - never commit
+ansible/k8s-cluster-baremetal/files/pki/*.key

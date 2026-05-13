@@ -24,6 +24,9 @@
 - import_tasks: install-local-path.yml
   when: inventory_hostname in groups['control_plane']
 
+- import_tasks: setup-ca-secret.yml
+  when: inventory_hostname in groups['control_plane']
+
 - import_tasks: install-argocd.yml
   when: inventory_hostname in groups['control_plane']
 ...
