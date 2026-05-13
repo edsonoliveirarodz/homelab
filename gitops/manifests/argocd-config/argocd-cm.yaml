@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+data:
+  resource.customizations.ignoreDifferences.gateway.networking.k8s.io_Gateway: |
+    jqPathExpressions:
+      - .spec.listeners[].tls.certificateRefs[].group
+      - .spec.listeners[].tls.certificateRefs[].kind
+  resource.customizations.ignoreDifferences.gateway.networking.k8s.io_HTTPRoute: |
+    jqPathExpressions:
+      - .spec.parentRefs[].group
+      - .spec.parentRefs[].kind
+      - .spec.rules[].backendRefs[].group
+      - .spec.rules[].backendRefs[].kind
+      - .spec.rules[].backendRefs[].weight
+      - .spec.rules[].matches
