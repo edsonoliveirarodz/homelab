@@ -1,7 +1,7 @@
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: lab-ca-issuer
+  name: homelab-ca-issuer
 spec:
   ca:
-    secretName: lab-ca-key-pair
+    secretName: homelab-ca-key-pair
