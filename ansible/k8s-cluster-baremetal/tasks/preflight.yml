@@ -1,0 +1,12 @@
+---
+- name: Check cgroup v2
+  ansible.builtin.command:
+    cmd: stat -fc %T /sys/fs/cgroup/
+  register: cgroup_type
+  changed_when: false
+
+- name: Fail if cgroup v2 is not active
+  ansible.builtin.fail:
+    msg: "Requires cgroup v2 (cgroup2fs). Found: {{ cgroup_type.stdout }}"
+  when: cgroup_type.stdout != "cgroup2fs"
+...

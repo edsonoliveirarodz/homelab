@@ -1,0 +1,47 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# cp terraform.tfvars.example terraform.tfvars
+
+# --- Proxmox ---
+proxmox_endpoint     = "https://192.168.1.100:8006"
+proxmox_ssh_username = "root"
+proxmox_node         = "proxmox"
+proxmox_node_address = "192.168.1.100"
+
+# Format: user@realm!tokenid=secret
+# Create at: Proxmox > Datacenter > Permissions > API Tokens
+proxmox_api_token = "terraform@pve!terraform=00000000-0000-0000-0000-000000000000"
+
+# --- Network ---
+network_gateway = "192.168.1.1"
+network_bridge  = "vmbr0"
+
+# --- Template ---
+# VM ID of the cloud-init Debian/Ubuntu template to clone
+template_id = 1000
+
+# --- Storage ---
+# Storage for cloud-init snippets (usually "local")
+snippets_storage = "local"
+# Storage for VM disks (must support 'images' type, e.g. local-lvm, tank)
+disk_storage = "local-lvm"
+
+# --- SSH ---
+# Paste the contents of ~/.ssh/id_rsa.pub here
+ssh_public_key = "ssh-rsa AAAA...your-public-key... user@host"
+
+# --- Control Plane ---
+control_plane = {
+  name            = "k8s-control-plane"
+  vm_id           = 100
+  ip              = "192.168.1.201/24"
+  cores           = 4
+  memory          = 8192
+  disk_size       = 32
+  bios            = "ovmf"
+  scsi_hardware   = "virtio-scsi-single"
+  stop_on_destroy = true
+}
+
+# workers is managed by worker_count passed to laboratory-provisioning.sh.
+# Do not edit manually — Terraform generates workers via locals.tf.
+workers = []

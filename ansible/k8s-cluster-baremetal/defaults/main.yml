@@ -1,0 +1,17 @@
+---
+kubernetes_version: "1.36"
+containerd_version: "2.2.3"
+k8s_admin_user: "admin"
+pod_network_cidr: "10.244.0.0/16"
+gateway_api_version: "1.5.1"
+cilium_version: "1.19.3"
+cilium_cli_version: "0.19.2"
+local_path_provisioner_version: "0.0.36"
+lb_ip_pool_range: "192.168.1.240-192.168.1.250"
+argocd_version: "3.4.1"
+gitops_repo_url: "https://github.com/edsonoliveirarodz/homelab.git"
+
+kernel_modules:
+  - overlay
+  - br_netfilter
+...

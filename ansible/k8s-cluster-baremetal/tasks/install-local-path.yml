@@ -1,0 +1,16 @@
+---
+- name: Install Local Path Provisioner
+  ansible.builtin.command:
+    cmd: kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v{{ local_path_provisioner_version }}/deploy/local-path-storage.yaml
+  changed_when: true
+
+- name: Wait for Local Path Provisioner to be ready
+  ansible.builtin.command:
+    cmd: kubectl rollout status deployment/local-path-provisioner -n local-path-storage --timeout=5m
+  changed_when: false
+
+- name: Define local-path as default StorageClass
+  ansible.builtin.command:
+    cmd: kubectl annotate storageclass local-path storageclass.kubernetes.io/is-default-class=true --overwrite
+  changed_when: true
+...

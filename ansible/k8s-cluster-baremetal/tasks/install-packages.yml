@@ -1,0 +1,12 @@
+---
+- name: Install necessary packages
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - gpg
+      - lsb-release
+      - apt-transport-https
+    state: present
+    update_cache: yes
+...

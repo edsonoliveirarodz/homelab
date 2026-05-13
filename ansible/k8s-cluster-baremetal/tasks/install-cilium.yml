@@ -1,0 +1,101 @@
+---
+- name: Detect architecture
+  ansible.builtin.set_fact:
+    cilium_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
+
+- name: Download Cilium CLI
+  ansible.builtin.get_url:
+    url: "https://github.com/cilium/cilium-cli/releases/download/v{{ cilium_cli_version }}/cilium-linux-{{ cilium_arch }}.tar.gz"
+    dest: "/tmp/cilium-linux-{{ cilium_arch }}.tar.gz"
+
+- name: Download checksum for Cilium CLI
+  ansible.builtin.get_url:
+    url: "https://github.com/cilium/cilium-cli/releases/download/v{{ cilium_cli_version }}/cilium-linux-{{ cilium_arch }}.tar.gz.sha256sum"
+    dest: "/tmp/cilium-linux-{{ cilium_arch }}.tar.gz.sha256sum"
+
+- name: Verify checksum
+  ansible.builtin.shell:
+    cmd: sha256sum --check cilium-linux-{{ cilium_arch }}.tar.gz.sha256sum
+    chdir: /tmp
+  changed_when: false
+
+- name: Extract Cilium CLI to /usr/local/bin
+  ansible.builtin.unarchive:
+    src: "/tmp/cilium-linux-{{ cilium_arch }}.tar.gz"
+    dest: /usr/local/bin
+    remote_src: yes
+    creates: /usr/local/bin/cilium
+
+- name: Remove temporary files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "/tmp/cilium-linux-{{ cilium_arch }}.tar.gz"
+    - "/tmp/cilium-linux-{{ cilium_arch }}.tar.gz.sha256sum"
+
+- name: Check if Cilium is already installed
+  ansible.builtin.command:
+    cmd: cilium status
+  register: cilium_installed
+  failed_when: false
+  changed_when: false
+
+- name: Install Cilium in the cluster
+  ansible.builtin.command:
+    cmd: >
+      cilium install
+      --version {{ cilium_version }}
+      --set kubeProxyReplacement=true
+      --set gatewayAPI.enabled=true
+      --set ipam.mode=kubernetes
+      --set l2announcements.enabled=true
+      --set externalIPs.enabled=true
+      --set k8sServiceHost={{ ansible_host }}
+      --set k8sServicePort=6443
+  when: cilium_installed.rc != 0
+  changed_when: true
+
+- name: Upgrade Cilium in the cluster
+  ansible.builtin.command:
+    cmd: >
+      cilium upgrade
+      --version {{ cilium_version }}
+      --set kubeProxyReplacement=true
+      --set gatewayAPI.enabled=true
+      --set ipam.mode=kubernetes
+      --set l2announcements.enabled=true
+      --set externalIPs.enabled=true
+      --set k8sServiceHost={{ ansible_host }}
+      --set k8sServicePort=6443
+  when: cilium_installed.rc == 0
+  changed_when: true
+
+- name: Wait for Cilium to be ready
+  ansible.builtin.command:
+    cmd: cilium status --wait --wait-duration=5m
+  changed_when: false
+
+- name: Configure LB-IPAM pool and L2 announcement policy
+  ansible.builtin.command:
+    cmd: kubectl apply -f -
+    stdin: |
+      apiVersion: cilium.io/v2alpha1
+      kind: CiliumLoadBalancerIPPool
+      metadata:
+        name: lan-pool
+      spec:
+        blocks:
+          - start: "{{ lb_ip_pool_range.split('-')[0] }}"
+            stop: "{{ lb_ip_pool_range.split('-')[1] }}"
+      ---
+      apiVersion: cilium.io/v2alpha1
+      kind: CiliumL2AnnouncementPolicy
+      metadata:
+        name: lan-l2
+      spec:
+        loadBalancerIPs: true
+        nodeSelector:
+          matchLabels: {}
+  changed_when: true
+...

@@ -1,0 +1,53 @@
+---
+- name: Create a directory of keyrings.
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download Docker GPG key
+  ansible.builtin.shell:
+    cmd: curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    creates: /etc/apt/keyrings/docker.gpg
+
+- name: Set permissions for the Docker GPG key
+  ansible.builtin.file:
+    path: /etc/apt/keyrings/docker.gpg
+    mode: 'a+r'
+
+- name: Set up Docker repository
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/docker.list
+    content: "deb [arch={{ ansible_architecture | replace('x86_64', 'amd64') }} signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable\n"
+
+- name: Install containerd
+  ansible.builtin.apt:
+    name: "containerd.io={{ containerd_version }}*"
+    state: present
+    update_cache: yes
+
+- name: Create containerd configuration directory
+  ansible.builtin.file:
+    path: /etc/containerd
+    state: directory
+    mode: '0755'
+
+- name: Generate default containerd configuration with SystemdCgroup enabled
+  ansible.builtin.shell:
+    cmd: |
+      containerd config default \
+        | sed 's/disabled_plugins = \["cri"\]/disabled_plugins = []/' \
+        | sed 's/SystemdCgroup = false/SystemdCgroup = true/' \
+        | tee /etc/containerd/config.toml > /dev/null
+  changed_when: true
+
+- name: Restart and enable containerd
+  ansible.builtin.systemd:
+    name: containerd
+    state: restarted
+    enabled: yes
+
+- name: Rerun the systemd daemon
+  ansible.builtin.command:
+    cmd: systemctl daemon-reexec
+...

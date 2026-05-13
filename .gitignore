@@ -1,0 +1,14 @@
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/.terraform.lock.hcl
+
+# Gerado pelo Terraform
+ansible/inventory.yml
+
+# Credenciais
+terraform/*.tfvars
+
+# Logs de execução
+logs/

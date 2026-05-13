@@ -1,0 +1,29 @@
+---
+- import_tasks: preflight.yml
+- import_tasks: install-packages.yml
+- import_tasks: configure-kernel.yml
+- import_tasks: configure-sysctl.yml
+- import_tasks: install-containerd.yml
+- import_tasks: install-kubernetes.yml
+
+- import_tasks: init-cluster.yml
+  when: inventory_hostname in groups['control_plane']
+
+- import_tasks: configure-kubeconfig.yml
+  when: inventory_hostname in groups['control_plane']
+
+- import_tasks: install-gateway-api.yml
+  when: inventory_hostname in groups['control_plane']
+
+- import_tasks: install-cilium.yml
+  when: inventory_hostname in groups['control_plane']
+
+- import_tasks: join-workers.yml
+  when: inventory_hostname in groups['workers']
+
+- import_tasks: install-local-path.yml
+  when: inventory_hostname in groups['control_plane']
+
+- import_tasks: install-argocd.yml
+  when: inventory_hostname in groups['control_plane']
+...

@@ -1,0 +1,18 @@
+---
+- name: Generate join command in control-plane
+  ansible.builtin.command:
+    cmd: kubeadm token create --print-join-command
+  register: join_command_result
+  delegate_to: "{{ groups['control_plane'][0] }}"
+
+- name: Add worker to the cluster
+  ansible.builtin.command:
+    cmd: "{{ join_command_result.stdout }}"
+    creates: /etc/kubernetes/kubelet.conf
+
+- name: Wait for node to be Ready
+  ansible.builtin.command:
+    cmd: kubectl wait node/{{ inventory_hostname }} --for=condition=Ready --timeout=5m
+  delegate_to: "{{ groups['control_plane'][0] }}"
+  changed_when: false
+...
