@@ -23,9 +23,9 @@ spec:
   ignoreDifferences:
     - group: gateway.networking.k8s.io
       kind: Gateway
-      jsonPointers:
-        - /status
+      managedFieldsManagers:
+        - cilium
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      jsonPointers:
-        - /status
+      managedFieldsManagers:
+        - cilium
