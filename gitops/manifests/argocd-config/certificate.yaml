@@ -1,0 +1,16 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: argocd-wildcard-cert
+  namespace: argocd
+spec:
+  secretName: wildcard-homelab-tls
+  dnsNames:
+    - "*.homelab.local"
+    - homelab.local
+  duration: 2160h
+  renewBefore: 360h
+  issuerRef:
+    name: lab-ca-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io

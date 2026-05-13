@@ -12,7 +12,7 @@
 
 - name: Wait for node to be Ready
   ansible.builtin.command:
-    cmd: kubectl wait node/{{ inventory_hostname }} --for=condition=Ready --timeout=5m
+    cmd: kubectl wait node/{{ ansible_hostname }} --for=condition=Ready --timeout=5m
   delegate_to: "{{ groups['control_plane'][0] }}"
   changed_when: false
 ...
