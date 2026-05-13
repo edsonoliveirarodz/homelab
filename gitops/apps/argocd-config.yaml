@@ -23,9 +23,15 @@ spec:
   ignoreDifferences:
     - group: gateway.networking.k8s.io
       kind: Gateway
-      managedFieldsManagers:
-        - cilium
+      jqPathExpressions:
+        - .spec.listeners[].tls.certificateRefs[].group
+        - .spec.listeners[].tls.certificateRefs[].kind
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      managedFieldsManagers:
-        - cilium
+      jqPathExpressions:
+        - .spec.parentRefs[].group
+        - .spec.parentRefs[].kind
+        - .spec.rules[].backendRefs[].group
+        - .spec.rules[].backendRefs[].kind
+        - .spec.rules[].backendRefs[].weight
+        - .spec.rules[].matches
