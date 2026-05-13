@@ -6,6 +6,19 @@
   failed_when: create_argocd_ns.rc != 0 and 'already exists' not in create_argocd_ns.stderr
   changed_when: create_argocd_ns.rc == 0
 
+- name: Pre-configure ArgoCD insecure mode
+  ansible.builtin.command:
+    cmd: kubectl apply -f -
+    stdin: |
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: argocd-cmd-params-cm
+        namespace: argocd
+      data:
+        server.insecure: "true"
+  changed_when: true
+
 - name: Install ArgoCD
   ansible.builtin.command:
     cmd: kubectl apply --server-side=true -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v{{ argocd_version }}/manifests/install.yaml
@@ -23,21 +36,6 @@
 - name: Wait for ArgoCD to be ready
   ansible.builtin.command:
     cmd: kubectl -n argocd wait --for=condition=available deployment --all --timeout=300s
-  changed_when: false
-
-- name: Set ArgoCD server insecure mode
-  ansible.builtin.command:
-    cmd: kubectl patch configmap argocd-cmd-params-cm -n argocd --type merge -p '{"data":{"server.insecure":"true"}}'
-  changed_when: true
-
-- name: Restart ArgoCD server to apply insecure mode
-  ansible.builtin.command:
-    cmd: kubectl rollout restart deployment argocd-server -n argocd
-  changed_when: true
-
-- name: Wait for ArgoCD server to be ready after restart
-  ansible.builtin.command:
-    cmd: kubectl -n argocd rollout status deployment argocd-server --timeout=120s
   changed_when: false
 
 - name: Bootstrap App of Apps
