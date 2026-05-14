@@ -10,11 +10,11 @@ spec:
   source:
     repoURL: https://charts.bitnami.com/bitnami
     chart: keycloak
-    targetRevision: "26.10.6"
+    targetRevision: "25.2.0"
     helm:
       values: |
         global:
-          imageRegistry: registry.bitnami.com/bitnami
+          imageRegistry: registry.bitnami.com
         proxy: edge
         postgresql:
           primary:
