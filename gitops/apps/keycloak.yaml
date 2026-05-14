@@ -17,6 +17,9 @@ spec:
           tag: "26.1.0"
         postgresql:
           enabled: false
+        command:
+          - "/opt/keycloak/bin/kc.sh"
+          - "start-dev"
         extraEnv: |
           - name: KC_DB
             value: postgres
@@ -32,8 +35,6 @@ spec:
               secretKeyRef:
                 name: keycloak-credentials
                 key: db-password
-          - name: KC_HOSTNAME
-            value: keycloak.homelab.local
           - name: KEYCLOAK_ADMIN
             value: admin
           - name: KEYCLOAK_ADMIN_PASSWORD
