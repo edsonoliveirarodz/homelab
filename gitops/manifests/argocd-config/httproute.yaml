@@ -5,7 +5,8 @@ metadata:
   namespace: argocd
 spec:
   parentRefs:
-    - name: argocd-gateway
+    - name: shared-gateway
+      namespace: gateway-system
   hostnames:
     - argocd.homelab.local
   rules:

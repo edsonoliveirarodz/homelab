@@ -5,7 +5,8 @@ metadata:
   namespace: rook-ceph
 spec:
   parentRefs:
-    - name: ceph-gateway
+    - name: shared-gateway
+      namespace: gateway-system
   hostnames:
     - ceph.homelab.local
   rules:
