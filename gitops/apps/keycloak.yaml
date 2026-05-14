@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://charts.bitnami.com/bitnami
     chart: keycloak
-    targetRevision: "25.2.0"
+    targetRevision: "26.10.6"
     helm:
       values: |
         global:
