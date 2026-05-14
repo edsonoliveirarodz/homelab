@@ -32,8 +32,8 @@ spec:
               secretKeyRef:
                 name: keycloak-credentials
                 key: db-password
-          - name: KC_HOSTNAME_STRICT
-            value: "false"
+          - name: KC_HOSTNAME
+            value: keycloak.homelab.local
           - name: KEYCLOAK_ADMIN
             value: admin
           - name: KEYCLOAK_ADMIN_PASSWORD
