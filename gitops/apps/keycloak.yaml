@@ -17,11 +17,6 @@ spec:
           tag: "26.1.0"
         postgresql:
           enabled: false
-        proxy:
-          enabled: true
-          mode: edge
-        http:
-          enabled: true
         extraEnv: |
           - name: KC_DB
             value: postgres
