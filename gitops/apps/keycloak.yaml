@@ -17,6 +17,11 @@ spec:
           tag: "26.1.0"
         postgresql:
           enabled: false
+        proxy:
+          enabled: true
+          mode: edge
+        http:
+          enabled: true
         extraEnv: |
           - name: KC_DB
             value: postgres
@@ -32,10 +37,6 @@ spec:
               secretKeyRef:
                 name: keycloak-credentials
                 key: db-password
-          - name: KC_PROXY_HEADERS
-            value: xforwarded
-          - name: KC_HTTP_ENABLED
-            value: "true"
           - name: KC_HOSTNAME_STRICT
             value: "false"
           - name: KEYCLOAK_ADMIN
