@@ -11,8 +11,8 @@ lb_ip_pool_range: "192.168.1.240-192.168.1.250"
 argocd_version: "3.4.1"
 gitops_repo_url: "https://github.com/edsonoliveirarodz/homelab.git"
 
-# Apps a serem aplicados no ArgoCD após o provisionamento.
-# Comente ou remova qualquer linha para não provisionar aquela aplicação.
+# Apps to be applied to ArgoCD after provisioning.
+# Comment out or remove any line to prevent that application from being provisioned.
 enabled_apps:
   - argocd-config
   - cert-manager
