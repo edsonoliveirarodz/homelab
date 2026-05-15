@@ -44,7 +44,7 @@ case "$action" in
 
     echo "==> [2/2] Provisioning Kubernetes cluster with Ansible..."
     cd "$ROOT_DIR/ansible"
-    ansible-playbook -i inventory.yml site.yml $ANSIBLE_VERBOSE \
+    ansible-playbook -i inventory.yml k8s-cluster.yml $ANSIBLE_VERBOSE \
       | tee "$LOG_DIR/ansible_${TIMESTAMP}.log"
 
     echo "==> Cluster ready with $worker_count workers!"

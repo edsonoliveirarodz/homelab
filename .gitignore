@@ -15,9 +15,12 @@ ansible/inventory.yml
 # Credenciais
 terraform-k8s/*.tfvars
 terraform-vm/*.tfvars
+services/**/*.tfvars
+services/**/*.tfstate
+services/**/*.tfstate.backup
 
 # Logs de execução
 logs/
 
 # CA private key - never commit
-ansible/k8s-cluster-baremetal/files/pki/*.key
+ansible/roles/k8s-cluster-baremetal/files/pki/*.key

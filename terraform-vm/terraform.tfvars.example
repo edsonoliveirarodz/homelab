@@ -1,7 +1,7 @@
 # Copy this file to terraform.tfvars and fill in your values.
 # cp terraform.tfvars.example terraform.tfvars
 #
-# Proxmox credentials — same values as terraform/terraform.tfvars.
+# Proxmox credentials shared across all service provisioning scripts.
 
 proxmox_endpoint     = "https://192.168.1.100:8006"
 proxmox_ssh_username = "root"
@@ -15,17 +15,3 @@ template_id      = 1000
 snippets_storage = "local"
 disk_storage     = "local-lvm"
 ssh_public_key   = "ssh-rsa AAAA...your-public-key... user@host"
-
-# VM configuration
-vm = {
-  name            = "test-vm"
-  vm_id           = 200
-  ip              = "192.168.1.210/24"
-  cores           = 2
-  memory          = 2048
-  disk_size       = 20
-  bios            = "ovmf"
-  scsi_hardware   = "virtio-scsi-single"
-  stop_on_destroy = true
-  tags            = ["vm"]
-}
