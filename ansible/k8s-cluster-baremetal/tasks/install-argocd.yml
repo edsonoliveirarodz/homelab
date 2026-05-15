@@ -43,27 +43,10 @@
     cmd: kubectl -n argocd wait --for=condition=available deployment --all --timeout=300s
   changed_when: false
 
-- name: Bootstrap App of Apps
+- name: Apply selected ArgoCD applications
   ansible.builtin.command:
     cmd: kubectl apply -f -
-    stdin: |
-      apiVersion: argoproj.io/v1alpha1
-      kind: Application
-      metadata:
-        name: app-of-apps
-        namespace: argocd
-      spec:
-        project: default
-        source:
-          repoURL: {{ gitops_repo_url }}
-          targetRevision: HEAD
-          path: gitops/apps
-        destination:
-          server: https://kubernetes.default.svc
-          namespace: argocd
-        syncPolicy:
-          automated:
-            prune: true
-            selfHeal: true
+    stdin: "{{ lookup('file', playbook_dir + '/../gitops/apps/' + item + '.yaml') }}"
+  loop: "{{ enabled_apps }}"
   changed_when: true
 ...

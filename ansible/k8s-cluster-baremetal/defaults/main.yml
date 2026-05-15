@@ -11,6 +11,22 @@ lb_ip_pool_range: "192.168.1.240-192.168.1.250"
 argocd_version: "3.4.1"
 gitops_repo_url: "https://github.com/edsonoliveirarodz/homelab.git"
 
+# Apps a serem aplicados no ArgoCD após o provisionamento.
+# Comente ou remova qualquer linha para não provisionar aquela aplicação.
+enabled_apps:
+  - argocd-config
+  - cert-manager
+  - cert-manager-config
+  - gateway
+  - metrics-server
+  - headlamp
+  - headlamp-config
+  #- rook-ceph-operator
+  #- rook-ceph-cluster
+  #- ceph-dashboard
+  #- keycloak
+  #- keycloak-config
+
 kernel_modules:
   - overlay
   - br_netfilter
