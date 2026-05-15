@@ -1,14 +1,20 @@
 # Terraform
-terraform/.terraform/
-terraform/*.tfstate
-terraform/*.tfstate.backup
-terraform/.terraform.lock.hcl
+terraform-k8s/.terraform/
+terraform-k8s/*.tfstate
+terraform-k8s/*.tfstate.backup
+terraform-k8s/.terraform.lock.hcl
+
+terraform-vm/.terraform/
+terraform-vm/*.tfstate
+terraform-vm/*.tfstate.backup
+terraform-vm/.terraform.lock.hcl
 
 # Gerado pelo Terraform
 ansible/inventory.yml
 
 # Credenciais
-terraform/*.tfvars
+terraform-k8s/*.tfvars
+terraform-vm/*.tfvars
 
 # Logs de execução
 logs/

@@ -4,7 +4,7 @@ resource "proxmox_virtual_environment_file" "cloud_init" {
   node_name    = var.proxmox_node
 
   source_raw {
-    data = templatefile("${path.root}/../cloud-init/init.yml", {
+    data = templatefile("${path.root}/cloud-init/cloud-init.yml.tftpl", {
       hostname       = var.name
       ssh_public_key = var.ssh_public_key
     })
