@@ -12,7 +12,7 @@ qm create "$VM_ID" \
   --cpu host \
   --sockets 1 \
   --cores 2 \
-  --memory 4096 \
+  --memory 2048 \
   --machine q35 \
   --vga virtio \
   --agent 1 \
@@ -36,7 +36,7 @@ qm set "$VM_ID" --boot order=scsi0
 qm set "$VM_ID" --ide2 ${STORAGE}:cloudinit
 
 # --- Expand disk to 32G ---
-qm disk resize "$VM_ID" scsi0 +29G
+qm disk resize "$VM_ID" scsi0 +5G
 
 # --- Identification tags ---
 qm set "$VM_ID" --tags "template,debian13"
