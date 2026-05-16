@@ -1,4 +1,6 @@
 terraform {
+  backend "local" {}
+
   required_providers {
     proxmox = {
       source  = "bpg/proxmox"
@@ -67,6 +69,17 @@ resource "proxmox_virtual_environment_vm" "vm" {
     discard      = "on"
     iothread     = true
     ssd          = true
+  }
+
+  dynamic "disk" {
+    for_each = var.extra_disk_size > 0 ? [var.extra_disk_size] : []
+    content {
+      datastore_id = var.disk_storage
+      interface    = "scsi1"
+      size         = disk.value
+      discard      = "on"
+      iothread     = true
+    }
   }
 
   network_device {

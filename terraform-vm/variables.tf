@@ -59,3 +59,9 @@ variable "vm" {
     tags            = list(string)
   })
 }
+
+variable "extra_disk_size" {
+  description = "Extra disk size in GB (0 = disabled)"
+  type        = number
+  default     = 0
+}

@@ -1,0 +1,22 @@
+---
+- name: Allow external connections
+  ansible.builtin.lineinfile:
+    path: "/etc/postgresql/{{ postgres_version }}/main/postgresql.conf"
+    regexp: "^#?listen_addresses"
+    line: "listen_addresses = '*'"
+  notify: Restart PostgreSQL
+
+- name: Allow remote access in pg_hba.conf
+  ansible.builtin.lineinfile:
+    path: "/etc/postgresql/{{ postgres_version }}/main/pg_hba.conf"
+    line: "host  all  all  0.0.0.0/0  scram-sha-256"
+  notify: Restart PostgreSQL
+
+- name: Ensure PostgreSQL is started and enabled
+  ansible.builtin.service:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

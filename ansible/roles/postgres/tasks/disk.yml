@@ -1,0 +1,63 @@
+---
+- name: Install parted
+  ansible.builtin.apt:
+    name: parted
+    state: present
+    update_cache: true
+
+- name: Detect root disk
+  ansible.builtin.shell:
+    cmd: findmnt -n -o SOURCE / | sed 's/[0-9]*$//'
+  register: root_disk
+  changed_when: false
+
+- name: Detect extra disk
+  ansible.builtin.shell:
+    cmd: lsblk -dn -o NAME,TYPE | awk '$2=="disk" {print "/dev/" $1}' | grep -v "{{ root_disk.stdout | trim }}"
+  register: extra_disk_detected
+  changed_when: false
+
+- name: Fail if extra disk not found
+  ansible.builtin.fail:
+    msg: "No extra disk found. Make sure the VM was provisioned with an extra disk."
+  when: extra_disk_detected.stdout | trim == ""
+
+- name: Fail if multiple extra disks found
+  ansible.builtin.fail:
+    msg: "Multiple extra disks found: {{ extra_disk_detected.stdout_lines }}. Set postgres_extra_disk manually."
+  when: extra_disk_detected.stdout_lines | length > 1
+
+- name: Set extra disk fact
+  ansible.builtin.set_fact:
+    postgres_extra_disk: "{{ extra_disk_detected.stdout | trim }}"
+
+- name: Show detected extra disk
+  ansible.builtin.debug:
+    msg: "Extra disk detected: {{ postgres_extra_disk }}"
+
+- name: Create partition on extra disk
+  community.general.parted:
+    device: "{{ postgres_extra_disk }}"
+    number: 1
+    state: present
+    fs_type: ext4
+
+- name: Format partition as ext4
+  community.general.filesystem:
+    fstype: ext4
+    dev: "{{ postgres_extra_disk }}1"
+    force: false
+
+- name: Create mount point
+  ansible.builtin.file:
+    path: "{{ postgres_data_mount }}"
+    state: directory
+    mode: "0755"
+
+- name: Mount extra disk and add to fstab
+  ansible.posix.mount:
+    path: "{{ postgres_data_mount }}"
+    src: "{{ postgres_extra_disk }}1"
+    fstype: ext4
+    opts: defaults,nofail
+    state: mounted

@@ -1,0 +1,15 @@
+---
+- name: Create Ansible tmp dir for postgres user
+  ansible.builtin.file:
+    path: /var/lib/postgresql/.ansible/tmp
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: "0700"
+
+- name: Set superuser password
+  community.postgresql.postgresql_user:
+    name: postgres
+    password: "{{ postgres_superuser_password }}"
+    state: present
+  become_user: postgres

@@ -1,6 +1,4 @@
 ---
-postgres_version: "16"
-postgres_db: app
-postgres_user: app
-postgres_password: changeme
-...
+postgres_version: "17"
+postgres_data_mount: "/mnt/pgdata"
+postgres_superuser_password: "changeme"

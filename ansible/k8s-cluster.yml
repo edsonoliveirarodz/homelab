@@ -2,9 +2,12 @@
 - name: Provisionar cluster Kubernetes
   hosts: k8s_cluster
   become: yes
+  gather_facts: false
   pre_tasks:
     - name: Wait for SSH
       ansible.builtin.wait_for_connection:
         timeout: 300
+    - name: Gather facts
+      ansible.builtin.setup:
   roles:
     - k8s-cluster-baremetal

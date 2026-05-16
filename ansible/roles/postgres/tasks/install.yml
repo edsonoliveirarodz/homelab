@@ -1,0 +1,27 @@
+---
+- name: Install PostgreSQL
+  ansible.builtin.apt:
+    name:
+      - "postgresql-{{ postgres_version }}"
+      - postgresql-contrib
+      - python3-psycopg2
+      - acl
+    state: present
+    update_cache: true
+
+- name: Check if cluster already initialized on extra disk
+  ansible.builtin.stat:
+    path: "{{ postgres_data_mount }}/{{ postgres_version }}/main/PG_VERSION"
+  register: pgdata_on_disk
+
+- name: Drop default cluster
+  ansible.builtin.command:
+    cmd: pg_dropcluster --stop {{ postgres_version }} main
+  when: not pgdata_on_disk.stat.exists
+  changed_when: true
+
+- name: Create cluster on extra disk
+  ansible.builtin.command:
+    cmd: pg_createcluster {{ postgres_version }} main --datadir={{ postgres_data_mount }}/{{ postgres_version }}/main
+  when: not pgdata_on_disk.stat.exists
+  changed_when: true

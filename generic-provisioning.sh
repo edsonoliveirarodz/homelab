@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="$ROOT_DIR/logs"
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 TF_DIR="$ROOT_DIR/terraform-vm"
-SERVICE_DIR="$ROOT_DIR/services/postgres"
+SERVICE_DIR="$ROOT_DIR/services/generic"
 
 PROXMOX_TFVARS="$TF_DIR/terraform.tfvars"
 SERVICE_TFVARS="$SERVICE_DIR/terraform.tfvars"
@@ -28,8 +28,8 @@ if [[ ! -f "$SERVICE_TFVARS" ]]; then
 fi
 
 echo "What do you want to do?"
-echo "  1) Create PostgreSQL VM"
-echo "  2) Destroy PostgreSQL VM"
+echo "  1) Create VM"
+echo "  2) Destroy VM"
 read -rp "Choose [1/2]: " action
 
 read -rp "Enable verbose mode for troubleshooting? [y/N]: " verbose
@@ -37,24 +37,21 @@ verbose="${verbose:-N}"
 
 if [[ "$verbose" =~ ^[yY]$ ]]; then
   export TF_LOG=DEBUG
-  export TF_LOG_PATH="$LOG_DIR/postgres-terraform_${TIMESTAMP}.log"
-  ANSIBLE_VERBOSE="-vvv"
+  export TF_LOG_PATH="$LOG_DIR/vm-terraform_${TIMESTAMP}.log"
   echo "==> Logs saved to: $LOG_DIR"
-else
-  ANSIBLE_VERBOSE=""
 fi
 
 case "$action" in
   1)
-    while true; do
-      read -rp "Extra disk size in GB: " extra_disk_size
-      if [[ "$extra_disk_size" =~ ^[1-9][0-9]*$ ]]; then
-        break
-      fi
-      echo "Error: enter a positive integer."
-    done
+    read -rp "Extra disk size in GB (0 = none) [0]: " extra_disk_size
+    extra_disk_size="${extra_disk_size:-0}"
 
-    echo "==> [1/2] Provisioning VM with Terraform..."
+    if ! [[ "$extra_disk_size" =~ ^[0-9]+$ ]]; then
+      echo "Error: enter a non-negative integer."
+      exit 1
+    fi
+
+    echo "==> Provisioning VM..."
     cd "$TF_DIR"
     terraform init -upgrade -reconfigure \
       -backend-config="path=$SERVICE_STATE"
@@ -64,33 +61,21 @@ case "$action" in
       -var="extra_disk_size=$extra_disk_size"
 
     VM_IP=$(terraform output -raw vm_ip)
-    VM_IP="${VM_IP%%/*}"
-
-    echo "==> [2/2] Configuring PostgreSQL with Ansible..."
-    cd "$ROOT_DIR/ansible"
-    ansible-galaxy collection install -r requirements.yml
-    ansible-playbook \
-      -i "$VM_IP," \
-      -u admin \
-      postgres.yml \
-      $ANSIBLE_VERBOSE \
-      | tee "$LOG_DIR/postgres-ansible_${TIMESTAMP}.log"
-
-    echo "==> PostgreSQL VM ready at $VM_IP!"
+    echo "==> VM ready at ${VM_IP%%/*}!"
     ;;
   2)
-    read -rp "Are you sure you want to destroy the PostgreSQL VM? [y/N]: " confirm
+    read -rp "Are you sure you want to destroy the VM? [y/N]: " confirm
     confirm="${confirm:-N}"
 
     if [[ "$confirm" =~ ^[yY]$ ]]; then
-      echo "==> Destroying PostgreSQL VM..."
+      echo "==> Destroying VM..."
       cd "$TF_DIR"
       terraform init -reconfigure \
         -backend-config="path=$SERVICE_STATE"
       terraform destroy -auto-approve \
         -var-file="$PROXMOX_TFVARS" \
         -var-file="$SERVICE_TFVARS"
-      echo "==> PostgreSQL VM destroyed."
+      echo "==> VM destroyed."
     else
       echo "Operation cancelled."
     fi

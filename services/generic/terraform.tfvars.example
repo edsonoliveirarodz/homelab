@@ -1,0 +1,15 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# cp terraform.tfvars.example terraform.tfvars
+
+vm = {
+  name            = "generic-vm"
+  vm_id           = 210
+  ip              = "192.168.1.220/24"
+  cores           = 2
+  memory          = 2048
+  disk_size       = 20
+  bios            = "ovmf"
+  scsi_hardware   = "virtio-scsi-single"
+  stop_on_destroy = true
+  tags            = ["vm"]
+}
