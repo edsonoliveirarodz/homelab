@@ -1,0 +1,28 @@
+---
+- name: Set root password
+  community.mysql.mysql_user:
+    name: root
+    host: localhost
+    password: "{{ mysql_root_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    state: present
+
+- name: Remove anonymous users
+  community.mysql.mysql_user:
+    name: ""
+    host_all: true
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    state: absent
+
+- name: Remove remote root access
+  community.mysql.mysql_user:
+    name: root
+    host: "%"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    state: absent
+
+- name: Remove test database
+  community.mysql.mysql_db:
+    name: test
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    state: absent

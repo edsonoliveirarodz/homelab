@@ -1,0 +1,15 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# cp terraform.tfvars.example terraform.tfvars
+
+vm = {
+  name            = "mysql-vm"
+  vm_id           = 203
+  ip              = "192.168.1.213/24"
+  cores           = 2
+  memory          = 4096
+  disk_size       = 40
+  bios            = "ovmf"
+  scsi_hardware   = "virtio-scsi-single"
+  stop_on_destroy = true
+  tags            = ["vm", "mysql"]
+}

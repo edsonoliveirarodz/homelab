@@ -1,0 +1,64 @@
+---
+- name: Install dependencies
+  ansible.builtin.apt:
+    name:
+      - gnupg
+      - acl
+      - python3-pymysql
+    state: present
+    update_cache: true
+
+- name: Download mysql-apt-config package
+  ansible.builtin.command:
+    cmd: wget -O /tmp/mysql-apt-config.deb "https://dev.mysql.com/get/mysql-apt-config_{{ mysql_apt_config_version }}_all.deb"
+    creates: /tmp/mysql-apt-config.deb
+
+- name: Setup MySQL repository
+  ansible.builtin.shell:
+    cmd: |
+      dpkg --unpack /tmp/mysql-apt-config.deb
+      echo "mysql-apt-config mysql-apt-config/select-server select mysql-{{ mysql_version }}" | debconf-set-selections
+      DEBIAN_FRONTEND=noninteractive dpkg --configure mysql-apt-config
+    creates: /etc/apt/sources.list.d/mysql.list
+
+- name: Update apt cache after adding MySQL repository
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install MySQL Server
+  ansible.builtin.apt:
+    name: mysql-server
+    state: present
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+
+- name: Ensure MySQL is started and enabled
+  ansible.builtin.service:
+    name: mysql
+    state: started
+    enabled: true
+
+- name: Check if data already on extra disk
+  ansible.builtin.stat:
+    path: "{{ mysql_data_dir }}/mysql"
+  register: mysqldata_on_disk
+
+- name: Stop MySQL before moving data
+  ansible.builtin.service:
+    name: mysql
+    state: stopped
+  when: not mysqldata_on_disk.stat.exists
+
+- name: Sync data to extra disk
+  ansible.builtin.command:
+    cmd: rsync -a /var/lib/mysql/ {{ mysql_data_dir }}/
+  when: not mysqldata_on_disk.stat.exists
+  changed_when: true
+
+- name: Fix ownership on extra disk
+  ansible.builtin.file:
+    path: "{{ mysql_data_dir }}"
+    owner: mysql
+    group: mysql
+    recurse: true
+  when: not mysqldata_on_disk.stat.exists

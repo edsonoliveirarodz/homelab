@@ -1,0 +1,38 @@
+---
+- name: Set custom data directory in MySQL config
+  ansible.builtin.copy:
+    dest: /etc/mysql/conf.d/datadir.cnf
+    content: |
+      [mysqld]
+      datadir = {{ mysql_data_dir }}
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart MySQL
+
+- name: Configure AppArmor for custom data directory
+  ansible.builtin.lineinfile:
+    path: /etc/apparmor.d/local/usr.sbin.mysqld
+    line: "  {{ mysql_data_dir }}/ r,\n  {{ mysql_data_dir }}/** rwk,"
+    create: true
+  notify: Reload AppArmor
+
+- name: Allow external connections
+  ansible.builtin.copy:
+    dest: /etc/mysql/conf.d/network.cnf
+    content: |
+      [mysqld]
+      bind-address = 0.0.0.0
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart MySQL
+
+- name: Ensure MySQL is started and enabled
+  ansible.builtin.service:
+    name: mysql
+    state: started
+    enabled: true
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
