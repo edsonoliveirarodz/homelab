@@ -1,0 +1,7 @@
+---
+vault_cluster_name: homelab
+vault_data_dir: /opt/vault/data
+vault_node_id: vault-node-1
+vault_port: 8200
+vault_cluster_port: 8201
+vault_tls_disable: true

@@ -1,0 +1,16 @@
+ui            = true
+cluster_name  = "{{ vault_cluster_name }}"
+disable_mlock = true
+
+storage "raft" {
+  path    = "{{ vault_data_dir }}"
+  node_id = "{{ vault_node_id }}"
+}
+
+listener "tcp" {
+  address     = "0.0.0.0:{{ vault_port }}"
+  tls_disable = {{ vault_tls_disable | lower }}
+}
+
+api_addr     = "http://{{ ansible_default_ipv4.address }}:{{ vault_port }}"
+cluster_addr = "http://{{ ansible_default_ipv4.address }}:{{ vault_cluster_port }}"

@@ -1,0 +1,23 @@
+---
+- name: Check if Vault is initialized
+  ansible.builtin.command:
+    cmd: vault operator init -status
+  environment:
+    VAULT_ADDR: "http://127.0.0.1:{{ vault_port }}"
+  register: vault_init_status
+  changed_when: false
+  failed_when: vault_init_status.rc == 1
+
+- name: Initialize Vault
+  ansible.builtin.command:
+    cmd: vault operator init
+  environment:
+    VAULT_ADDR: "http://127.0.0.1:{{ vault_port }}"
+  register: vault_init_output
+  when: vault_init_status.rc == 2
+  changed_when: true
+
+- name: Show init output — save these keys!
+  ansible.builtin.debug:
+    msg: "{{ vault_init_output.stdout_lines }}"
+  when: vault_init_status.rc == 2
